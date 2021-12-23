@@ -18,6 +18,7 @@ type FieldInfo struct {
 	Index              []int
 	Type               reflect.Type
 	JSONName           string
+	FieldName          string
 }
 
 func AppendFields(fields []FieldInfo, parentIndex []int, t reflect.Type) []FieldInfo {
@@ -56,9 +57,10 @@ iteration:
 
 		// Declare a field
 		field := FieldInfo{
-			Index:    index,
-			Type:     f.Type,
-			JSONName: f.Name,
+			Index:     index,
+			Type:      f.Type,
+			JSONName:  f.Name,
+			FieldName: f.Name,
 		}
 
 		// Read "json" tag

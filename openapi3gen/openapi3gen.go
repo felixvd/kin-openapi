@@ -26,7 +26,9 @@ type Option func(*generatorOpt)
 // properties during the generation process, based on the
 // name of the field, the Go type, and the struct tags.
 // name will be "_root" for the top level object, and tag will be ""
-type SchemaCustomizerFn func(name string, t reflect.Type, tag reflect.StructTag, schema *openapi3.Schema) error
+// jsonname will be the name taken from the structTag, fieldname
+// will be the original field's name.
+type SchemaCustomizerFn func(jsonname string, fieldname string, t reflect.Type, tag reflect.StructTag, parent reflect.Type, schema *openapi3.Schema) error
 
 type generatorOpt struct {
 	useAllExportedFields bool
@@ -135,6 +137,31 @@ func getStructField(t reflect.Type, fieldInfo jsoninfo.FieldInfo) reflect.Struct
 		t = ff.Type
 	}
 	return ff
+}
+
+// Returns the parent of the given type
+// Assumes that the parents slice contains the type itself in the last element
+func getParentType(parents []*jsoninfo.TypeInfo, t reflect.Type, name string, tag reflect.StructTag) (*jsoninfo.TypeInfo, error) {
+	if len(parents) > 1 {
+		return parents[len(parents)-2], nil
+	}
+	return nil, nil
+}
+
+// Returns the original field's name for the current type (t)
+// Matches the JSONName to the name
+func getFieldName(parents []*jsoninfo.TypeInfo, t reflect.Type, name string, tag reflect.StructTag) string {
+	parent, err := getParentType(parents, t, name, tag)
+	if err != nil {
+		return ""
+	}
+	for _, field := range parent.Fields {
+		if field.JSONName == name {
+			return field.FieldName
+		}
+	}
+	fmt.Println("Couldn't find the field name: ", name)
+	return ""
 }
 
 func (g *Generator) generateWithoutSaving(parents []*jsoninfo.TypeInfo, t reflect.Type, name string, tag reflect.StructTag) (*openapi3.SchemaRef, error) {
@@ -336,8 +363,16 @@ func (g *Generator) generateWithoutSaving(parents []*jsoninfo.TypeInfo, t reflec
 	}
 
 	if g.opts.schemaCustomizer != nil {
-		if err := g.opts.schemaCustomizer(name, t, tag, schema); err != nil {
-			return nil, err
+		parent, _ := getParentType(parents, t, name, tag)
+		if parent != nil {
+			fieldName := getFieldName(parents, t, name, tag)
+			if err := g.opts.schemaCustomizer(name, fieldName, t, tag, parent.Type, schema); err != nil {
+				return nil, err
+			}
+		} else {  // It's the root type
+			if err := g.opts.schemaCustomizer(name, "", t, tag, nil, schema); err != nil {
+				return nil, err
+			}
 		}
 	}
 
