@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/getkin/kin-openapi/jsoninfo"
+	"github.com/felixvd/kin-openapi/jsoninfo"
 	"github.com/stretchr/testify/require"
 )
 

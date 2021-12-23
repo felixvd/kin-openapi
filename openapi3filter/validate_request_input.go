@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/getkin/kin-openapi/routers"
+	"github.com/felixvd/kin-openapi/openapi3"
+	"github.com/felixvd/kin-openapi/routers"
 )
 
 // A ContentParameterDecoder takes a parameter definition from the OpenAPI spec,

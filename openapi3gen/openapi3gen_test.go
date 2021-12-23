@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/getkin/kin-openapi/openapi3gen"
+	"github.com/felixvd/kin-openapi/openapi3"
+	"github.com/felixvd/kin-openapi/openapi3gen"
 	"github.com/stretchr/testify/require"
 )
 
