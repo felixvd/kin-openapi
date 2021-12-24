@@ -160,7 +160,7 @@ func getFieldName(parents []*jsoninfo.TypeInfo, t reflect.Type, name string, tag
 			return field.FieldName
 		}
 	}
-	fmt.Println("Couldn't find the field name: ", name)
+	fmt.Println("Couldn't find the field name ", name, " in type ", t.Name())
 	return ""
 }
 
